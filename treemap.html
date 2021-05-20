@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Treemap Visualization</title>
+    <link rel="stylesheet" href="./asset/css/index.css" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap" rel="stylesheet" />
+    <script src="./d3.v4.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div class="header-wrap">
+                <div class="left"><img width="100px" height="100px" src="./asset/img/Logo.svg" alt="treemap icon"></div>
+                <div class="right">
+                    <h1>Treemap Visualization</h1>
+                    <p>
+                        A Treemap displays hierarchical data as a set of nested
+                        rectangles.
+                    </p>
+                </div>
+            </div>
+        </header>
+
+        <div id="plot-area"></div>
+        <div id="legend"><p id="boss1"><i>■</i> Boss 1</p><p id="boss2"><i>■</i> Boss 2</p><p id="boss3"><i>■</i> Boss 3</p><p id="boss4"><i>■</i> Boss 4</p></div>
+        <div id="tooltip-area"></div>
+    </div>
+
+    <script>
+        var Tooltip = d3.select("#tooltip-area")
+            .append("div")
+            .style("opacity", 0)
+            .attr("class", "tooltip")
+
+        // Three function that change the tooltip when user hover / move / leave a cell
+        var mouseover = function (d) {
+            Tooltip
+                .style("opacity", 1)
+            d3.select(this)
+                .style("stroke", "none")
+                .style("opacity", 1)
+        }
+        var mousemove = function (d) {
+            // console.log(d3.mouse(this));
+            // x > 900
+            // y > 350
+
+            Tooltip
+                .html(`<h2>Title:</h2><p>${d.data.name}</p> <h2>Value:</h2><p>${d.data.value}</p> <h2>Group:</h2><p>${d.data.group}</p>`)
+                .style("position", "absolute")
+                .style("left", (d3.mouse(this)[0]  + 170) + "px")
+                .style("top", (d3.mouse(this)[1]  + 80) + "px")
+        }
+        var mouseleave = function (d) {
+            Tooltip
+                .style("opacity", 0)
+            d3.select(this)
+                .style("stroke", "none")
+                .style("opacity", 0.7)
+        }
+
+
+        const margin = {
+                top: -2,
+                right: 2.5,
+                bottom: 0,
+                left: 2.5,
+            },
+            width = window.innerWidth - margin.left - margin.right,
+            height = 480 - margin.top - margin.bottom;
+
+        // append the svg object to the body of the page
+        const svg = d3
+            .select("#plot-area")
+            .append("svg")
+            .attr("class", "svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        // read json data https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/data_dendrogram_full.json
+        d3.json("./asset/data/data.json", function (data) {
+            // Give the data to this cluster layout:
+            const root = d3.hierarchy(data).sum(function (d) {
+                return d.value;
+            }); // Here the size of each leave is given in the 'value' field in input data
+
+            // Then d3.treemap computes the position of each element of the hierarchy
+            d3
+                .treemap()
+                .size([width, height])
+                .paddingTop(2.5)
+                .paddingRight(2.5)
+                .paddingInner(2.5)(
+                    // Padding between each rectangle
+                    //.paddingOuter(6)
+                    //.padding(20)
+                    root
+                );
+
+            // prepare a color scale
+            const color = d3
+                .scaleOrdinal()
+                .domain(["boss1", "boss2", "boss3", "boss4"])
+                .range(["#FF0066", "#0F62FE", "#F1C21B", "#8A3FFC"]);
+
+            // And a opacity scale
+            const opacity = d3.scaleLinear().domain([10, 30]).range([0.5, 1]);
+
+            // use this information to add rectangles:
+            svg
+                .selectAll("rect")
+                .data(root.leaves())
+                .enter()
+                .append("rect")
+                .attr("class", "rect")
+                .attr("x", function (d) {
+                    return d.x0;
+                })
+                .attr("y", function (d) {
+                    return d.y0;
+                })
+                .attr("width", function (d) {
+                    return d.x1 - d.x0;
+                })
+                .attr("height", function (d) {
+                    return d.y1 - d.y0;
+                })
+                .style("fill", function (d) {
+                    return color(d.parent.data.name);
+                })
+                .style("opacity", function (d) {
+                    return opacity(d.data.value);
+                })
+                .on("mouseover", mouseover)
+                .on("mousemove", mousemove)
+                .on("mouseleave", mouseleave);
+
+            // and to add the text labels
+            svg
+                .selectAll("text")
+                .data(root.leaves())
+                .enter()
+                .append("text")
+                .attr("class", "label")
+                .attr("x", function (d) {
+                    return d.x0 + 5;
+                }) // +10 to adjust position (more right)
+                .attr("y", function (d) {
+                    return d.y0 + 20;
+                }) // +20 to adjust position (lower)
+                .html(function (d) {
+                    const name = d.data.name.replace("mister_", "");
+                    return `<a class="link" target="_blank" href='https://www.google.co.th/search?q=${name}'>${name}</a>`;
+                });
+
+            // and to add the value labels
+            svg
+                .selectAll("vals")
+                .data(root.leaves())
+                .enter()
+                .append("text")
+                .attr("class", "value")
+                .attr("x", function (d) {
+                    return d.x0 + 5;
+                }) // +10 to adjust position (more right)
+                .attr("y", function (d) {
+                    return d.y0 + 45;
+                }) // +20 to adjust position (lower)
+                .text(function (d) {
+                    return d.data.value;
+                });
+        });
+    </script>
+</body>
+
+</html>
