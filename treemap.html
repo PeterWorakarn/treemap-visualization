@@ -2,183 +2,305 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Treemap Visualization</title>
-    <link rel="stylesheet" href="./asset/css/index.css" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" />
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap" rel="stylesheet" />
-    <script src="./d3.v4.js"></script>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- The SEO -->
+  <title>Datayolk Treemap</title>
+  <meta name="description" content=" The Datayolk Treemap displays hierarchical data as a set of nested
+                        rectangles based on pageview's blog." />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+  <link rel="canonical" href="https://visualization.datayolk.net/" />
+  <!-- The Social OG -->
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Datayolk" />
+  <meta property="og:description" content=" The Datayolk Treemap displays hierarchical data as a set of nested
+                        rectangles based on pageview's blog." />
+  <meta property="og:url" content="https://visualization.datayolk.net/" />
+  <meta property="og:site_name" content="Datayolk" />
+  <meta property="article:publisher" content="https://www.facebook.com/datayolk" />
+  <meta property="og:image" content="./asset/img/OG-Banner@3x.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="627" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Datayolk" />
+  <meta name="twitter:description" content=" The Datayolk Treemap displays hierarchical data as a set of nested
+                        rectangles based on pageview's blog." />
+  <meta name="twitter:image" content="./asset/img/OG-Banner@3x.png" />
+
+  <!-- The icon -->
+  <link rel="icon" href="./asset/img/Favicon-32x32.png" sizes="32x32" />
+  <link rel="icon" href="./asset/img/Favicon-192x192.png" sizes="192x192" />
+  <link rel="apple-touch-icon" href="./asset/img/Favicon-180x180.png" />
+  <meta name="msapplication-TileImage" content="./asset/img/Favicon-270x270.png" />
+  <link rel="stylesheet" href="./asset/css/index-pageview.css" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap" rel="stylesheet" />
+  <script src="./d3.v4.js"></script>
 </head>
 
 <body>
-    <div class="container">
-        <header>
-            <div class="header-wrap">
-                <div class="left"><img width="100px" height="100px" src="./asset/img/Logo.svg" alt="treemap icon"></div>
-                <div class="right">
-                    <h1>Treemap Visualization</h1>
-                    <p>
-                        A Treemap displays hierarchical data as a set of nested
-                        rectangles.
-                    </p>
-                </div>
-            </div>
-        </header>
-
-        <div id="plot-area"></div>
-        <div id="legend"><p id="boss1"><i>■</i> Boss 1</p><p id="boss2"><i>■</i> Boss 2</p><p id="boss3"><i>■</i> Boss 3</p><p id="boss4"><i>■</i> Boss 4</p></div>
-        <div id="tooltip-area"></div>
+  <div class="container">
+    <header>
+      <div class="header-wrap">
+        <div class="left">
+          <img width="100px" height="100px" src="./asset/img/Logo.svg" alt="treemap icon" />
+        </div>
+        <div class="right">
+          <h1>Datayolk Treemap</h1>
+          <p>
+            A Treemap displays hierarchical data as a set of nested rectangles
+            based on
+            <a target="_blank" href="https://utm.guru/udn94">pageview's blog.</a>
+          </p>
+        </div>
+      </div>
+    </header>
+    <div class="chart-wrap">
+      <div id="plot-area"></div>
+      <div id="legend">
+        <p id="boss1"><i>■</i> Data</p>
+        <p id="boss2"><i>■</i> Technology</p>
+        <p id="boss3"><i>■</i> Business</p>
+        <p id="boss4"><i>■</i> Social</p>
+      </div>
+      <div id="tooltip-area"></div>
     </div>
 
-    <script>
-        var Tooltip = d3.select("#tooltip-area")
-            .append("div")
-            .style("opacity", 0)
-            .attr("class", "tooltip")
 
-        // Three function that change the tooltip when user hover / move / leave a cell
-        var mouseover = function (d) {
-            Tooltip
-                .style("opacity", 1)
-            d3.select(this)
-                .style("stroke", "none")
-                .style("opacity", 1)
-        }
-        var mousemove = function (d) {
-            // console.log(d3.mouse(this));
-            // x > 900
-            // y > 350
+  </div>
 
-            Tooltip
-                .html(`<h2>Title:</h2><p>${d.data.name}</p> <h2>Value:</h2><p>${d.data.value}</p> <h2>Group:</h2><p>${d.data.group}</p>`)
-                .style("position", "absolute")
-                .style("left", (d3.mouse(this)[0]  + 170) + "px")
-                .style("top", (d3.mouse(this)[1]  + 80) + "px")
-        }
-        var mouseleave = function (d) {
-            Tooltip
-                .style("opacity", 0)
-            d3.select(this)
-                .style("stroke", "none")
-                .style("opacity", 0.7)
-        }
+  <script>
+    var Tooltip = d3
+      .select("#tooltip-area")
+      .append("div")
+      .style("opacity", 0)
+      .attr("class", "tooltip");
 
+    // Three function that change the tooltip when user hover / move / leave a cell
+    var mouseover = function (d) {
+      Tooltip.style("opacity", 1);
+      d3.select(this).style("stroke", "none").style("opacity", 1);
 
-        const margin = {
-                top: -2,
-                right: 2.5,
-                bottom: 0,
-                left: 2.5,
-            },
-            width = window.innerWidth - margin.left - margin.right,
-            height = 480 - margin.top - margin.bottom;
+    };
+    var mousemove = function (d) {
+      // console.log(d3.mouse(this));
+      // console.log(d);
+      // x > 900
+      // y > 350
+      const title = d.data.title;
+      const url =
+        d.data.url +
+        "?utm_source=subdomain&utm_medium=referal&utm_campaign=pageview-project";
+      const slug = d.data.slug;
+      const pageview = d.data.pageview;
+      const category = d.data.category;
 
-        // append the svg object to the body of the page
-        const svg = d3
-            .select("#plot-area")
-            .append("svg")
-            .attr("class", "svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+      Tooltip.html(
+          `<h2>Title:</h2><a href="${url}" target="_blank"><p id="main-h">${title}</p></a> <h2>Slug:</h2><p>${slug}</p> <h2>Category:</h2><p>${category}</p> <h2>Pageview:</h2><p>${pageview.toLocaleString()}</p>`
+        )
+        .style("position", "absolute")
+        .style("left", d3.mouse(this)[0] + 170 + "px")
+        .style("top", d3.mouse(this)[1] + 80 + "px");
 
-        // read json data https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/data_dendrogram_full.json
-        d3.json("./asset/data/data.json", function (data) {
-            // Give the data to this cluster layout:
-            const root = d3.hierarchy(data).sum(function (d) {
-                return d.value;
-            }); // Here the size of each leave is given in the 'value' field in input data
+      if (window.innerWidth <= 600) {
+        Swal.fire({
+          html: `<h2>Title:</h2><p id="main-h">${title}</p> <h2>Category:</h2><p>${category}</p> <h2>Pageview:</h2><p>${pageview.toLocaleString()}</p>`,
+          showConfirmButton:false,
+          background: '#393839',
+          footer: `<a href="${url}" target="_blank">Read more</a>`
+        })
+      }
+    };
+    var mouseleave = function (d) {
+      Tooltip.style("opacity", 0);
+      d3.select(this).style("stroke", "none").style("opacity", 0.7);
+    };
 
-            // Then d3.treemap computes the position of each element of the hierarchy
-            d3
-                .treemap()
-                .size([width, height])
-                .paddingTop(2.5)
-                .paddingRight(2.5)
-                .paddingInner(2.5)(
-                    // Padding between each rectangle
-                    //.paddingOuter(6)
-                    //.padding(20)
-                    root
-                );
+    const margin = {
+        top: -2,
+        right: 2.5,
+        bottom: 0,
+        left: 2.5,
+      },
+      width = window.innerWidth - margin.left - margin.right,
+      height = 450 - margin.top - margin.bottom;
 
-            // prepare a color scale
-            const color = d3
-                .scaleOrdinal()
-                .domain(["boss1", "boss2", "boss3", "boss4"])
-                .range(["#FF0066", "#0F62FE", "#F1C21B", "#8A3FFC"]);
+    // append the svg object to the body of the page
+    const svg = d3
+      .select("#plot-area")
+      .append("svg")
+      .attr("class", "svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-            // And a opacity scale
-            const opacity = d3.scaleLinear().domain([10, 30]).range([0.5, 1]);
+    const data = {
+      children: [{
+          name: "Data",
+          children: [],
+          colname: "level2",
+        },
+        {
+          name: "Technology",
+          children: [],
+          colname: "level2",
+        },
+        {
+          name: "Business",
+          children: [],
+          colname: "level2",
+        },
+        {
+          name: "Social",
+          children: [],
+          colname: "level2",
+        },
+      ],
+      name: "Pageview",
+    };
 
-            // use this information to add rectangles:
-            svg
-                .selectAll("rect")
-                .data(root.leaves())
-                .enter()
-                .append("rect")
-                .attr("class", "rect")
-                .attr("x", function (d) {
-                    return d.x0;
-                })
-                .attr("y", function (d) {
-                    return d.y0;
-                })
-                .attr("width", function (d) {
-                    return d.x1 - d.x0;
-                })
-                .attr("height", function (d) {
-                    return d.y1 - d.y0;
-                })
-                .style("fill", function (d) {
-                    return color(d.parent.data.name);
-                })
-                .style("opacity", function (d) {
-                    return opacity(d.data.value);
-                })
-                .on("mouseover", mouseover)
-                .on("mousemove", mousemove)
-                .on("mouseleave", mouseleave);
+    // read json data https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/data_dendrogram_full.json
+    d3.json(
+      "https://datayolk.net/wp-json/custom/v1/posts",
+      function (article_pageview) {
+        const data_cat = data["children"][0]["children"];
+        const technology_cat = data["children"][1]["children"];
+        const business_cat = data["children"][2]["children"];
+        const social_cat = data["children"][3]["children"];
 
-            // and to add the text labels
-            svg
-                .selectAll("text")
-                .data(root.leaves())
-                .enter()
-                .append("text")
-                .attr("class", "label")
-                .attr("x", function (d) {
-                    return d.x0 + 5;
-                }) // +10 to adjust position (more right)
-                .attr("y", function (d) {
-                    return d.y0 + 20;
-                }) // +20 to adjust position (lower)
-                .html(function (d) {
-                    const name = d.data.name.replace("mister_", "");
-                    return `<a class="link" target="_blank" href='https://www.google.co.th/search?q=${name}'>${name}</a>`;
-                });
-
-            // and to add the value labels
-            svg
-                .selectAll("vals")
-                .data(root.leaves())
-                .enter()
-                .append("text")
-                .attr("class", "value")
-                .attr("x", function (d) {
-                    return d.x0 + 5;
-                }) // +10 to adjust position (more right)
-                .attr("y", function (d) {
-                    return d.y0 + 45;
-                }) // +20 to adjust position (lower)
-                .text(function (d) {
-                    return d.data.value;
-                });
+        const articles = article_pageview.filter((each) => {
+          return each.pageview >= 300;
         });
-    </script>
+        articles.map((each) => {
+          if (each.category == "Data") {
+            data_cat.push(each);
+          }
+          if (each.category == "Business") {
+            business_cat.push(each);
+          }
+          if (each.category == "Technology") {
+            technology_cat.push(each);
+          }
+          if (each.category == "Social") {
+            social_cat.push(each);
+          }
+        });
+
+        // Give the data to this cluster layout:
+        const root = d3.hierarchy(data).sum(function (d) {
+          return d.pageview;
+        }); // Here the size of each leave is given in the 'value' field in input data
+
+        // Then d3.treemap computes the position of each element of the hierarchy
+        d3
+          .treemap()
+          .size([width, height])
+          .paddingTop(2.5)
+          .paddingRight(2.5)
+          .paddingInner(2.5)(
+            // Padding between each rectangle
+            //.paddingOuter(6)
+            //.padding(20)
+            root
+          );
+
+        // prepare a color scale
+        const color = d3
+          .scaleOrdinal()
+          .domain(["Data", "Technology", "Business", "Social"])
+          .range(["#FF0066", "#0F62FE", "#F1C21B", "#8A3FFC"]);
+
+        // And a opacity scale
+        const opacity = d3.scaleLinear().domain([10, 30]).range([0.5, 1]);
+
+        // use this information to add rectangles:
+        svg
+          .selectAll("rect")
+          .data(root.leaves())
+          .enter()
+          .append("rect")
+          .attr("class", "rect")
+          .attr("x", function (d) {
+            return d.x0;
+          })
+          .attr("y", function (d) {
+            return d.y0;
+          })
+          .attr("width", function (d) {
+            return d.x1 - d.x0;
+          })
+          .attr("height", function (d) {
+            return d.y1 - d.y0;
+          })
+          .style("fill", function (d) {
+            if (d.data.category == undefined) {} else {
+              const category = d.data.category;
+              return color(category);
+            }
+          })
+          .style("opacity", function (d) {
+            if (d.data.pageview == undefined) {} else {
+              const pageview_value = d.data.pageview;
+              return opacity(pageview_value);
+            }
+          })
+          .on("mouseover", mouseover)
+          .on("mousemove", mousemove)
+          .on("mouseleave", mouseleave);
+
+        // and to add the text labels
+        svg
+          .selectAll("text")
+          .data(root.leaves())
+          .enter()
+          .append("text")
+          .attr("class", "label")
+          .attr("x", function (d) {
+            return d.x0 + 5;
+          }) // +10 to adjust position (more right)
+          .attr("y", function (d) {
+            return d.y0 + 20;
+          }) // +20 to adjust position (lower)
+          .html(function (d) {
+            if (d.data.slug == undefined) {} else {
+              const name = d.data.slug.substring(0, 1);
+              const url =
+                d.data.url +
+                "?utm_source=subdomain&utm_medium=referal&utm_campaign=pageview-project";
+              return `<a class="link" target="_blank" href='${url}'>${name}</a>`;
+            }
+          });
+
+        // and to add the value labels
+        svg
+          .selectAll("vals")
+          .data(root.leaves())
+          .enter()
+          .append("text")
+          .attr("class", "value")
+          .attr("x", function (d) {
+            return d.x0 + 5;
+          }) // +10 to adjust position (more right)
+          .attr("y", function (d) {
+            return d.y0 + 45;
+          }) // +20 to adjust position (lower)
+          .text(function (d) {
+            if (d.data.slug == undefined) {} else {
+              const pageview_value = d.data.pageview;
+              if (pageview_value > 1000) {
+                return (pageview_value / 1000).toFixed(1) + " k";
+              }
+              return pageview_value;
+            }
+          });
+      }
+    );
+  </script>
+  <script src="./sweetalert2.all.min.js"></script>
+
 </body>
 
 </html>
